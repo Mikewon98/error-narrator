@@ -1,0 +1,29 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": ["> 1%", "last 2 versions", "not ie <= 8"],
+          "node": "12"
+        },
+        "modules": false
+      }
+    ]
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ],
+        ["@babel/preset-react", { "runtime": "automatic" }]
+      ]
+    }
+  }
+}
