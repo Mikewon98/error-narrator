@@ -40,9 +40,10 @@ module.exports = {
   },
 
   // Mock modules
-  moduleNameMapping: {
-    "^say$": "<rootDir>/test/mocks/say.js",
-  },
+  // moduleNameMapping: {
+  //   "^say$": "<rootDir>/test/mocks/say.js",
+  // },
+  moduleNameMapper: { "^say$": "<rootDir>/test/mocks/say.js" },
 
   // Test timeout
   testTimeout: 10000,
@@ -64,6 +65,11 @@ module.exports = {
     {
       displayName: "integration",
       testMatch: ["<rootDir>/test/integration/**/*.test.js"],
+      testEnvironment: "jsdom",
+    },
+    {
+      displayName: "integration",
+      testMatch: ["<rootDir>/test/e2e/**/*.test.js"],
       testEnvironment: "jsdom",
     },
     // {

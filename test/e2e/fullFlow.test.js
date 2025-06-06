@@ -31,6 +31,14 @@ describe("Full Flow E2E Tests", () => {
 
   beforeEach(() => {
     cleanupMocks();
+
+    // Clear all mock call history before each test
+    jest.clearAllMocks();
+    mockSpeechSynthesis.speak.mockClear();
+    mockSpeechSynthesis.cancel.mockClear();
+    mockSpeechSynthesis.getVoices.mockClear();
+
+    // Reset environment
     process.env.NODE_ENV = "development";
   });
 
@@ -52,6 +60,9 @@ describe("Full Flow E2E Tests", () => {
         cooldownMs: 100,
       });
 
+      // Wait a bit to ensure initialization is complete
+      await waitFor(10);
+
       // Simulate a window error
       const error = createMockError("map is not a function", "TypeError");
       const errorEvent = new ErrorEvent("error", { error });
@@ -71,6 +82,8 @@ describe("Full Flow E2E Tests", () => {
         enabled: true,
         cooldownMs: 100,
       });
+
+      await waitFor(10);
 
       // Simulate unhandled promise rejection
       const reason = createMockError("Promise rejected", "Error");
@@ -96,6 +109,8 @@ describe("Full Flow E2E Tests", () => {
         cooldownMs: 200,
       });
 
+      await waitFor(10);
+
       // First error
       const error1 = createMockError("First error");
       window.dispatchEvent(new ErrorEvent("error", { error: error1 }));
@@ -103,14 +118,14 @@ describe("Full Flow E2E Tests", () => {
       await waitFor(50);
       expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
 
-      // Second error immediately (should be blocked)
+      // Second error immediately (should be blocked by cooldown)
       const error2 = createMockError("Second error");
       window.dispatchEvent(new ErrorEvent("error", { error: error2 }));
 
       await waitFor(50);
       expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1); // Still 1
 
-      // Wait for cooldown and try again
+      // Wait for cooldown to expire and try again
       await waitFor(200);
 
       const error3 = createMockError("Third error");
@@ -127,6 +142,8 @@ describe("Full Flow E2E Tests", () => {
           ignorePatterns: ["ResizeObserver", "Non-critical"],
         },
       });
+
+      await waitFor(10);
 
       // Should be ignored
       const ignoredError = createMockError(
@@ -145,8 +162,10 @@ describe("Full Flow E2E Tests", () => {
       expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
     });
 
-    test("should handle manual speak calls", () => {
+    test("should handle manual speak calls", async () => {
       errorNarrator = new ErrorNarrator({ enabled: true });
+
+      await waitFor(10);
 
       errorNarrator.speak("Manual test message");
 
@@ -159,6 +178,8 @@ describe("Full Flow E2E Tests", () => {
       process.env.NODE_ENV = "production";
 
       errorNarrator = new ErrorNarrator(); // Should be disabled by default
+
+      await waitFor(10);
 
       const error = createMockError("Production error");
       window.dispatchEvent(new ErrorEvent("error", { error }));
@@ -196,6 +217,8 @@ describe("Full Flow E2E Tests", () => {
     test("should handle complex error objects", async () => {
       errorNarrator = new ErrorNarrator({ enabled: true });
 
+      await waitFor(10);
+
       const complexError = {
         message: "Complex error with nested data",
         stack: "Error stack trace...",
@@ -219,6 +242,8 @@ describe("Full Flow E2E Tests", () => {
         cooldownMs: 50,
       });
 
+      await waitFor(10);
+
       // Fire 10 errors rapidly
       const startTime = Date.now();
       for (let i = 0; i < 10; i++) {
@@ -238,6 +263,8 @@ describe("Full Flow E2E Tests", () => {
 
     test("should handle very long error messages", async () => {
       errorNarrator = new ErrorNarrator({ enabled: true });
+
+      await waitFor(10);
 
       const longMessage = "A".repeat(1000);
       const error = createMockError(longMessage);

@@ -2,13 +2,30 @@
   "name": "error-narrator",
   "version": "1.0.0",
   "description": "Voice notifications for development errors",
-  "main": "dist/index.js",
-  "browser": "dist/browser.js",
-  "module": "src/index.js",
+  "main": "./dist/node.js",
+  "module": "./src/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./dist/node.js",
+      "browser": "./dist/browser.js"
+    },
+    "./react": {
+      "import": "./src/react/index.js",
+      "require": "./dist/react.js",
+      "browser": "./dist/react.js"
+    }
+  },
+  "browser": {
+    "./dist/node.js": "./dist/browser.js",
+    "./node.js": "./browser.js",
+    "say": false
+  },
   "files": [
     "dist/",
-    "integrations/",
+    "src/",
+    "integration/",
     "README.md"
   ],
   "scripts": {

@@ -30,6 +30,7 @@ module.exports = [
                     },
                   },
                 ],
+                "@babel/preset-react",
               ],
             },
           },
@@ -44,6 +45,43 @@ module.exports = [
     resolve: {
       fallback: {
         // For browser compatibility
+        path: false,
+        fs: false,
+        child_process: false,
+      },
+    },
+  },
+
+  // React-specific build
+  {
+    entry: "./src/react/index.js",
+    output: {
+      path: path.resolve(__dirname, "dist"),
+      filename: "react.js",
+      library: "ErrorNarratorReact",
+      libraryTarget: "umd",
+    },
+    target: "web",
+    mode: process.env.NODE_ENV === "production" ? "production" : "development",
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: ["@babel/preset-env", "@babel/preset-react"],
+            },
+          },
+        },
+      ],
+    },
+    externals: {
+      react: "react",
+    },
+    resolve: {
+      fallback: {
         path: false,
         fs: false,
         child_process: false,
@@ -75,6 +113,13 @@ module.exports = [
           },
         },
       ],
+    },
+    resolve: {
+      fallback: {
+        path: false,
+        fs: false,
+        child_process: false,
+      },
     },
   },
 

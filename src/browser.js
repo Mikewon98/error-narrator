@@ -1,33 +1,31 @@
-class BrowserVoiceEngine {
+class ErrorNarratorBrowser {
   constructor(options = {}) {
     this.enabled = options.enabled ?? true;
-    this.voice = options.voice || null;
-    this.rate = options.rate || 1;
-    this.pitch = options.pitch || 1;
-    this.checkPermissions();
-  }
-
-  async checkPermissions() {
-    if (!("speechSynthesis" in window)) {
-      console.warn("Speech synthesis not supported");
-      return false;
-    }
-    return true;
+    this.rate = options.rate ?? 1.0;
+    this.cooldownMs = options.cooldownMs ?? 2000;
+    this.lastSpoken = 0;
+    console.log("ErrorNarratorBrowser initialized with options:", options);
   }
 
   speak(message) {
-    if (!this.enabled) return;
+    console.log("Attempting to speak:", message);
+    if (!this.enabled || !window.speechSynthesis) {
+      console.warn("Speech synthesis not available or disabled");
+      return;
+    }
+
+    const now = Date.now();
+    if (now - this.lastSpoken < this.cooldownMs) {
+      console.log("Skipping due to cooldown");
+      return;
+    }
 
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.rate = this.rate;
-    utterance.pitch = this.pitch;
-
-    if (this.voice) {
-      utterance.voice = this.voice;
-    }
-
-    speechSynthesis.speak(utterance);
+    console.log("Speaking with rate:", this.rate);
+    window.speechSynthesis.speak(utterance);
+    this.lastSpoken = now;
   }
 }
 
-export { BrowserVoiceEngine };
+export default ErrorNarratorBrowser;
