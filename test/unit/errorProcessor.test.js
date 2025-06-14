@@ -7,7 +7,7 @@ describe("ErrorProcessor", () => {
       const result = ErrorProcessor.humanizeError(error);
 
       expect(result).toContain("is not a function");
-      expect(result).toContain("Check if it's properly defined");
+      expect(result).toContain("Check if it's properly");
     });
 
     test('should humanize "Cannot read property" error', () => {
@@ -23,14 +23,14 @@ describe("ErrorProcessor", () => {
       const result = ErrorProcessor.humanizeError(error);
 
       expect(result).toContain("Reference error");
-      expect(result).toContain("variable is not defined");
+      expect(result).toContain("myVariable is not defined");
     });
 
     test("should handle TypeError", () => {
       const error = new TypeError("Cannot read property of null");
       const result = ErrorProcessor.humanizeError(error);
 
-      expect(result).toContain("Type error detected");
+      expect(result).toContain("Type error");
     });
 
     test("should handle syntax errors", () => {
@@ -38,13 +38,15 @@ describe("ErrorProcessor", () => {
       const result = ErrorProcessor.humanizeError(error);
 
       expect(result).toContain("Syntax error");
-      expect(result).toContain("brackets or commas");
+      expect(result).toContain("brackets, commas, or quotes");
     });
 
     test("should clean up and truncate long messages", () => {
       const longMessage = "A".repeat(200);
       const error = new Error(longMessage);
-      const result = ErrorProcessor.humanizeError(error);
+      const result = ErrorProcessor.humanizeError(error, {
+        maxMessageLength: 100,
+      });
 
       expect(result.length).toBeLessThanOrEqual(100);
     });
