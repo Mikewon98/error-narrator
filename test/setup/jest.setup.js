@@ -23,6 +23,10 @@ global.SpeechSynthesisUtterance = jest.fn().mockImplementation((text) => ({
   rate: 1,
   pitch: 1,
   volume: 1,
+  voice: null,
+  onend: null,
+  onerror: null,
+  onstart: null,
   addEventListener: jest.fn(),
   removeEventListener: jest.fn(),
 }));

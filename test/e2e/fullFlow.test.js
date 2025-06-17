@@ -1,4 +1,5 @@
-import ErrorNarrator from "../../src/index";
+import ErrorNarratorBrowser from "../../src/browser";
+import { Config, enable } from "../../src/index";
 import { waitFor, createMockError, cleanupMocks } from "../setup/testUtils";
 
 describe("Full Flow E2E Tests", () => {
@@ -55,7 +56,7 @@ describe("Full Flow E2E Tests", () => {
 
   describe("Browser Environment Full Flow", () => {
     test("should initialize and handle window errors", async () => {
-      errorNarrator = new ErrorNarrator({
+      const config = new Config({
         enabled: true,
         cooldownMs: 100,
       });
@@ -78,7 +79,7 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should handle unhandled promise rejections", async () => {
-      errorNarrator = new ErrorNarrator({
+      const config = new Config({
         enabled: true,
         cooldownMs: 100,
       });
@@ -104,9 +105,9 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should respect cooldown periods", async () => {
-      errorNarrator = new ErrorNarrator({
+      const config = new Config({
         enabled: true,
-        cooldownMs: 200,
+        cooldownMs: 100,
       });
 
       await waitFor(10);
@@ -136,7 +137,7 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should filter ignored error patterns", async () => {
-      errorNarrator = new ErrorNarrator({
+      const config = new Config({
         enabled: true,
         filters: {
           ignorePatterns: ["ResizeObserver", "Non-critical"],
@@ -163,11 +164,15 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should handle manual speak calls", async () => {
-      errorNarrator = new ErrorNarrator({ enabled: true });
+      const options = {
+        enabled: true,
+      };
+
+      voiceEngine = new ErrorNarratorBrowser(options);
 
       await waitFor(10);
 
-      errorNarrator.speak("Manual test message");
+      voiceEngine.speak("Manual test message");
 
       expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
       const call = mockSpeechSynthesis.speak.mock.calls[0][0];
@@ -176,8 +181,7 @@ describe("Full Flow E2E Tests", () => {
 
     test("should be disabled in production environment", async () => {
       process.env.NODE_ENV = "production";
-
-      errorNarrator = new ErrorNarrator(); // Should be disabled by default
+      const config = new Config();
 
       await waitFor(10);
 
@@ -192,14 +196,16 @@ describe("Full Flow E2E Tests", () => {
   describe("Configuration Edge Cases", () => {
     test("should handle invalid configuration gracefully", () => {
       expect(() => {
-        errorNarrator = new ErrorNarrator({
+        const options = {
           enabled: "invalid",
           rate: "not-a-number",
           cooldownMs: -1000,
-        });
+        };
+
+        voiceEngine = new ErrorNarratorBrowser(options);
       }).not.toThrow();
 
-      expect(errorNarrator).toBeDefined();
+      expect(voiceEngine).toBeDefined();
     });
 
     test("should handle missing speechSynthesis API", async () => {
@@ -215,7 +221,7 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should handle complex error objects", async () => {
-      errorNarrator = new ErrorNarrator({ enabled: true });
+      voiceEngine = new ErrorNarratorBrowser({ enabled: true });
 
       await waitFor(10);
 
@@ -237,7 +243,7 @@ describe("Full Flow E2E Tests", () => {
 
   describe("Performance Tests", () => {
     test("should handle rapid error bursts without blocking", async () => {
-      errorNarrator = new ErrorNarrator({
+      errorNarrator = new ErrorNarratorBrowser({
         enabled: true,
         cooldownMs: 50,
       });
@@ -262,7 +268,10 @@ describe("Full Flow E2E Tests", () => {
     });
 
     test("should handle very long error messages", async () => {
-      errorNarrator = new ErrorNarrator({ enabled: true });
+      errorNarrator = new ErrorNarratorBrowser({
+        enabled: true,
+        cooldownMs: 50,
+      });
 
       await waitFor(10);
 

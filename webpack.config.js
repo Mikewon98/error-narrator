@@ -43,23 +43,28 @@ module.exports = [
       react: "react",
     },
     resolve: {
+      extensions: [".js", ".jsx"],
       fallback: {
-        // For browser compatibility
         path: false,
         fs: false,
         child_process: false,
       },
+      alias: {
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
+      },
     },
   },
 
-  // React-specific build
+  // React integration build (for integration/react path)
   {
-    entry: "./src/react/index.js",
+    entry: "./integration/react.js",
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: "react.js",
+      filename: "integration-react.js",
       library: "ErrorNarratorReact",
       libraryTarget: "umd",
+      globalObject: "typeof self !== 'undefined' ? self : this",
     },
     target: "web",
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
@@ -71,7 +76,17 @@ module.exports = [
           use: {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env", "@babel/preset-react"],
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    targets: {
+                      browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
+                    },
+                  },
+                ],
+                "@babel/preset-react",
+              ],
             },
           },
         },
@@ -79,13 +94,48 @@ module.exports = [
     },
     externals: {
       react: "react",
+      "react-dom": "react-dom",
     },
     resolve: {
+      extensions: [".js", ".jsx"],
       fallback: {
         path: false,
         fs: false,
         child_process: false,
       },
+      alias: {
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
+      },
+    },
+  },
+
+  // Webpack integration build
+  {
+    entry: "./integration/webpack.js",
+    output: {
+      path: path.resolve(__dirname, "dist"),
+      filename: "integration-webpack.js",
+      library: {
+        type: "umd",
+      },
+      globalObject: "this",
+    },
+    target: "node",
+    mode: process.env.NODE_ENV || "production",
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: ["@babel/preset-env"],
+            },
+          },
+        },
+      ],
     },
   },
 
@@ -115,10 +165,15 @@ module.exports = [
       ],
     },
     resolve: {
+      extensions: [".js", ".jsx"],
       fallback: {
         path: false,
         fs: false,
         child_process: false,
+      },
+      alias: {
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
       },
     },
   },

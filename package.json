@@ -11,10 +11,27 @@
       "require": "./dist/node.js",
       "browser": "./dist/browser.js"
     },
-    "./react": {
-      "import": "./src/react/index.js",
-      "require": "./dist/react.js",
-      "browser": "./dist/react.js"
+    "./integration/react": {
+      "import": "./integration/react.js",
+      "require": "./dist/integration-react.js",
+      "browser": "./dist/integration-react.js"
+    },
+    "./integration/webpack": {
+      "import": "./integration/webpack.js",
+      "require": "./dist/integration-webpack.js",
+      "browser": "./dist/integration-webpack.js"
+    },
+    "./src/browser.js": {
+      "import": "./src/browser.js",
+      "require": "./dist/browser.js"
+    },
+    "./src/config.js": {
+      "import": "./src/config.js",
+      "require": "./dist/config.js"
+    },
+    "./src/errorProcessor.js": {
+      "import": "./src/errorProcessor.js",
+      "require": "./dist/errorProcessor.js"
     }
   },
   "browser": {
@@ -25,7 +42,7 @@
   "files": [
     "dist/",
     "src/",
-    "integration/",
+    "integrations/",
     "README.md"
   ],
   "scripts": {
@@ -53,11 +70,11 @@
     "react",
     "nextjs"
   ],
-  "author": "Your Name",
+  "author": "Michael Wondwossen Metaferia",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/error-narrator.git"
+    "url": "https://github.com/mikewon98/error-narrator.git"
   },
   "peerDependencies": {
     "react": ">=16.0.0"

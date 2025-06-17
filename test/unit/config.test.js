@@ -1,4 +1,5 @@
 import { Config, defaultConfig } from "../../src/config";
+import { createMockHashString } from "../setup/testUtils";
 
 jest.useFakeTimers();
 
@@ -175,10 +176,11 @@ describe("Config", () => {
         filters: { errorTypes: ["TypeError"] }, // Allow TypeError
       });
       const error = new TypeError("Test error");
-      const errorKey = `${error.constructor.name}:${error.message.substring(
-        0,
-        50
-      )}`;
+      const errorType = error.constructor?.name || "Error";
+      const message = error.message || error.toString();
+
+      const messageHash = createMockHashString(message);
+      const errorKey = `${errorType}:${messageHash}`;
 
       const initialGlobalTime = config.lastSpoken.get("global");
       const initialErrorTime = config.lastSpoken.get(errorKey);
