@@ -23,7 +23,7 @@ const defaultConfig = {
   },
   humanize: true, // Use ErrorProcessor to make errors more readable
   fallbackToRaw: true, // If humanization fails, use raw error message
-  debug: true, // Enable debug logging
+  debug: false, // Enable debug logging
 };
 
 class Config {

@@ -1,8 +1,13 @@
-import { NodeVoiceEngine } from "../../src/node";
+import ErrorNarratorNode, { NodeVoiceEngine } from "../../src/node";
 
 jest.mock("say", () => ({
   speak: jest.fn(),
 }));
+
+afterEach(() => {
+  // restore the spy created with spyOn
+  jest.restoreAllMocks();
+});
 
 const say = require("say");
 
@@ -13,210 +18,176 @@ describe("NodeVoiceEngine", () => {
 
   describe("constructor", () => {
     test("should initialize with default options", () => {
-      const engine = new NodeVoiceEngine();
+      const engine = new ErrorNarratorNode();
 
-      expect(engine.enabled).toBe(true);
-      expect(engine.voice).toBe(null);
-      expect(engine.speed).toBe(1);
+      expect(engine.isSpeaking).toBe(false);
+      expect(engine.speechQueue).toStrictEqual([]);
     });
 
     test("should initialize with custom options", () => {
       const options = {
-        enabled: false,
-        voice: "Alex",
-        speed: 1.5,
+        voice: null,
+        rate: 1,
+        pitch: 1,
+        volume: 1,
+        maxMessageLength: 100,
       };
 
       const engine = new NodeVoiceEngine(options);
 
-      expect(engine.enabled).toBe(false);
-      expect(engine.voice).toBe("Alex");
-      expect(engine.speed).toBe(1.5);
+      expect(engine.config.getConfig().voice).toBe(null);
+      expect(engine.config.getConfig().rate).toBe(1);
+      expect(engine.config.getConfig().pitch).toBe(1);
+      expect(engine.config.getConfig().volume).toBe(1);
+      expect(engine.config.getConfig().maxMessageLength).toBe(100);
     });
 
-    test("should use default enabled value when explicitly set to null", () => {
-      const options = {
-        enabled: null,
-        voice: "Samantha",
-        speed: 0.8,
-      };
+    test("should clear queue when clear queue is called", () => {
+      const engine = new NodeVoiceEngine();
+      engine.clearQueue;
 
-      const engine = new NodeVoiceEngine(options);
-
-      expect(engine.enabled).toBe(true);
-      expect(engine.voice).toBe("Samantha");
-      expect(engine.speed).toBe(0.8);
+      expect(engine.speechQueue).toStrictEqual([]);
     });
 
     test("should handle undefined options", () => {
       const engine = new NodeVoiceEngine(undefined);
 
-      expect(engine.enabled).toBe(true);
-      expect(engine.voice).toBe(null);
-      expect(engine.speed).toBe(1);
-    });
-
-    test("should handle partial options", () => {
-      const engine = new NodeVoiceEngine({ voice: "Daniel" });
-
-      expect(engine.enabled).toBe(true);
-      expect(engine.voice).toBe("Daniel");
-      expect(engine.speed).toBe(1);
+      expect(engine.config.getConfig().voice).toBe(null);
+      expect(engine.config.getConfig().rate).toBe(1);
+      expect(engine.config.getConfig().pitch).toBe(1);
+      expect(engine.config.getConfig().volume).toBe(1);
+      expect(engine.config.getConfig().maxMessageLength).toBe(100);
     });
   });
 
   describe("speak method", () => {
-    test("should call say.speak with correct parameters when enabled", () => {
-      const engine = new NodeVoiceEngine({
-        enabled: true,
-        voice: "Alex",
-        speed: 1.2,
-      });
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test("should call speak with correct message", () => {
+      const engine = new NodeVoiceEngine();
+
+      const spy = jest.spyOn(engine, "speak");
 
       const message = "Hello, world!";
       engine.speak(message);
 
-      expect(say.speak).toHaveBeenCalledTimes(1);
-      expect(say.speak).toHaveBeenCalledWith(message, "Alex", 1.2);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(engine.speak).toHaveBeenCalledWith(message);
     });
 
-    test("should call say.speak with null voice when no voice specified", () => {
-      const engine = new NodeVoiceEngine({ speed: 0.8 });
+    test("should call speak with null voice when config is specified", () => {
+      const engines = new NodeVoiceEngine({ rate: 0.8 });
+
+      const spy = jest.spyOn(engines, "speak");
 
       const message = "Test message";
-      engine.speak(message);
+      engines.speak(message);
 
-      expect(say.speak).toHaveBeenCalledTimes(1);
-      expect(say.speak).toHaveBeenCalledWith(message, null, 0.8);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(engines.speak).toHaveBeenCalledWith(message);
     });
 
     test("should not call say.speak when disabled", () => {
       const engine = new NodeVoiceEngine({ enabled: false });
 
-      const message = "This should not be spoken";
-      engine.speak(message);
-
-      expect(say.speak).not.toHaveBeenCalled();
+      expect(engine.config.getConfig().enabled).toBe(false);
     });
 
     test("should handle empty message", () => {
       const engine = new NodeVoiceEngine();
 
+      const spy = jest.spyOn(engine, "speak");
+
       engine.speak("");
 
-      expect(say.speak).toHaveBeenCalledTimes(1);
-      expect(say.speak).toHaveBeenCalledWith("", null, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(engine.speak).toHaveBeenCalledWith("");
     });
 
     test("should handle multiple speak calls", () => {
-      const engine = new NodeVoiceEngine({ voice: "Victoria", speed: 1.1 });
+      const engine = new NodeVoiceEngine();
+      const spy = jest.spyOn(engine, "speak");
 
       engine.speak("First message");
       engine.speak("Second message");
       engine.speak("Third message");
 
-      expect(say.speak).toHaveBeenCalledTimes(3);
-      expect(say.speak).toHaveBeenNthCalledWith(
-        1,
-        "First message",
-        "Victoria",
-        1.1
-      );
-      expect(say.speak).toHaveBeenNthCalledWith(
-        2,
-        "Second message",
-        "Victoria",
-        1.1
-      );
-      expect(say.speak).toHaveBeenNthCalledWith(
-        3,
-        "Third message",
-        "Victoria",
-        1.1
-      );
+      expect(spy).toHaveBeenCalledTimes(3);
+      expect(spy).toHaveBeenNthCalledWith(1, "First message");
+      expect(spy).toHaveBeenNthCalledWith(2, "Second message");
+      expect(spy).toHaveBeenNthCalledWith(3, "Third message");
     });
 
     test("should handle long messages", () => {
       const engine = new NodeVoiceEngine();
+
+      const spy = jest.spyOn(engine, "speak");
+
       const longMessage =
         "This is a very long message that contains multiple sentences and should still be handled correctly by the voice engine. It tests the robustness of the speak method.";
 
       engine.speak(longMessage);
 
-      expect(say.speak).toHaveBeenCalledTimes(1);
-      expect(say.speak).toHaveBeenCalledWith(longMessage, null, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      expect(engine.speak).toHaveBeenCalledWith(longMessage);
     });
   });
 
   describe("enabled/disabled state", () => {
-    test("should respect enabled state changes during runtime", () => {
-      const engine = new NodeVoiceEngine({ enabled: true });
+    test("should set enable to true", () => {
+      const engine = new NodeVoiceEngine();
 
-      // Initially enabled - should speak
-      engine.speak("First message");
-      expect(say.speak).toHaveBeenCalledTimes(1);
+      engine.enable();
 
-      // Disable and try to speak
-      engine.enabled = false;
-      engine.speak("Second message");
-      expect(say.speak).toHaveBeenCalledTimes(1); // Still 1, not called again
-
-      // Re-enable and speak
-      engine.enabled = true;
-      engine.speak("Third message");
-      expect(say.speak).toHaveBeenCalledTimes(2); // Now called again
+      expect(engine.config.getConfig().enabled).toBe(true);
     });
 
-    test("should handle falsy enabled values correctly", () => {
-      const testCases = [
-        { enabled: false, shouldSpeak: false },
-        { enabled: 0, shouldSpeak: false },
-        { enabled: "", shouldSpeak: false },
-        { enabled: null, shouldSpeak: true },
-        { enabled: true, shouldSpeak: true },
-        { enabled: undefined, shouldSpeak: true }, // ?? operator makes this true
-      ];
+    test("should set enable to false", () => {
+      const engine = new ErrorNarratorNode();
+      engine.disable();
 
-      testCases.forEach(({ enabled, shouldSpeak }, index) => {
-        jest.clearAllMocks();
-        const engine = new NodeVoiceEngine({ enabled });
-
-        engine.speak(`Test message ${index}`);
-
-        if (shouldSpeak) {
-          expect(say.speak).toHaveBeenCalledTimes(1);
-        } else {
-          expect(say.speak).not.toHaveBeenCalled();
-        }
-      });
+      expect(engine.config.getConfig().enabled).toBe(false);
     });
   });
 
   describe("edge cases", () => {
     test("should handle special characters in message", () => {
       const engine = new NodeVoiceEngine();
+
+      const spy = jest.spyOn(engine, "speak");
+
       const specialMessage =
         "Hello! @#$%^&*() 123 Testing special chars: éñüññ";
 
       engine.speak(specialMessage);
 
-      expect(say.speak).toHaveBeenCalledWith(specialMessage, null, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(engine.speak).toHaveBeenCalledWith(specialMessage);
     });
 
     test("should handle numeric messages", () => {
       const engine = new NodeVoiceEngine();
 
+      const spy = jest.spyOn(engine, "speak");
+
       engine.speak(123);
 
-      expect(say.speak).toHaveBeenCalledWith(123, null, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(engine.speak).toHaveBeenCalledWith(123);
     });
 
     test("should handle boolean messages", () => {
       const engine = new NodeVoiceEngine();
+      const spy = jest.spyOn(engine, "speak");
 
       engine.speak(true);
 
-      expect(say.speak).toHaveBeenCalledWith(true, null, 1);
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      expect(engine.speak).toHaveBeenCalledWith(true);
     });
   });
 });

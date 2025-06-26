@@ -1,5 +1,5 @@
-const { Config } = require("./config.js");
-const { ErrorProcessor } = require("./errorProcessor.js");
+import { Config } from "./config.js";
+import { ErrorProcessor } from "./errorProcessor.js";
 
 let say;
 try {
@@ -211,7 +211,7 @@ class ErrorNarratorNode {
     try {
       const options = {
         voice: configData.voice || null,
-        speed: configData.speed || configData.rate || 1.0,
+        speed: configData.rate || 1.0,
       };
 
       if (configData.debug) {
@@ -254,9 +254,9 @@ class ErrorNarratorNode {
 
   clearQueue() {
     this.speechQueue = [];
-    if (say) {
-      say.stop();
-    }
+    // if (say) {
+    //   say.stop();
+    // }
     this.isSpeaking = false;
   }
 

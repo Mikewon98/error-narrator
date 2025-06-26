@@ -107,13 +107,13 @@ describe("Config", () => {
       const error = new TypeError("Test error"); // TypeError is in the allowed list
 
       config.shouldSpeak(error); // Speak once to start cooldown
-      // jest.advanceTimersByTime(4999);
-      setTimeout(() => {}, 4999);
+      jest.advanceTimersByTime(4999);
+      // setTimeout(() => {}, 4999);
 
       // Should still be blocked
       expect(config.shouldSpeak(error)).toBe(false);
-      setTimeout(() => {}, 21);
-      // jest.advanceTimersByTime(21); // Total time is 5020ms
+      // setTimeout(() => {}, 21);
+      jest.advanceTimersByTime(21); // Total time is 5020ms
 
       // After cooldown, should work again
       expect(config.shouldSpeak(error)).toBe(true);

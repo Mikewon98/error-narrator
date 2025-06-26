@@ -94,7 +94,6 @@ function test(message) {
   return globalInstance.test(message);
 }
 
-// Export everything
 export default ErrorNarrator;
 export {
   ErrorNarrator,
