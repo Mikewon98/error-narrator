@@ -122,56 +122,6 @@ class ErrorNarratorNode {
     this.speak(message);
   }
 
-  // handleError(error) {
-  //   if (!error) return;
-
-  //   const configData = this.config.getConfig();
-
-  //   if (configData.debug) {
-  //     console.log("[ErrorNarratorNode] Handling error:", error);
-  //   }
-
-  //   // Check if we should ignore this error entirely
-  //   if (ErrorProcessor.shouldIgnoreError(error, configData)) {
-  //     if (configData.debug) {
-  //       console.log(
-  //         "[ErrorNarratorNode] Ignoring error based on processor rules"
-  //       );
-  //     }
-  //     return;
-  //   }
-
-  //   // Check config-based filtering
-  //   if (!this.config.shouldSpeak(error)) {
-  //     if (configData.debug) {
-  //       console.log("[ErrorNarratorNode] Not speaking due to config rules");
-  //     }
-  //     return;
-  //   }
-
-  //   // Process the error message
-  //   let message;
-  //   if (configData.humanize) {
-  //     try {
-  //       message = ErrorProcessor.humanizeError(error, configData);
-  //     } catch (processingError) {
-  //       console.warn(
-  //         "[ErrorNarratorNode] Error processing failed:",
-  //         processingError
-  //       );
-  //       message = configData.fallbackToRaw
-  //         ? error.message || error.toString()
-  //         : null;
-  //     }
-  //   } else {
-  //     message = error.message || error.toString();
-  //   }
-
-  //   if (message) {
-  //     this.speak(message);
-  //   }
-  // }
-
   speak(message) {
     const configData = this.config.getConfig();
 
@@ -354,23 +304,5 @@ class NodeVoiceEngine extends ErrorNarratorNode {
   }
 }
 
-module.exports = ErrorNarratorNode;
-module.exports.NodeVoiceEngine = NodeVoiceEngine;
-
-// const say = require("say");
-
-// class NodeVoiceEngine {
-//   constructor(options = {}) {
-//     this.enabled = options.enabled ?? true;
-//     this.voice = options.voice || null;
-//     this.speed = options.speed || 1;
-//   }
-
-//   speak(message) {
-//     if (!this.enabled) return;
-
-//     say.speak(message, this.voice, this.speed);
-//   }
-// }
-
-// export { NodeVoiceEngine };
+export default ErrorNarratorNode;
+export { NodeVoiceEngine };

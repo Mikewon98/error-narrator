@@ -76,6 +76,10 @@
     "type": "git",
     "url": "https://github.com/mikewon98/error-narrator.git"
   },
+  "bugs": {
+    "url": "https://github.com/mikewon98/error-narrator/issues"
+  },
+  "homepage": "https://github.com/mikewon98/error-narrator#readme",
   "peerDependencies": {
     "react": ">=16.0.0"
   },
