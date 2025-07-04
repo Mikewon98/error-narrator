@@ -6,7 +6,9 @@ let ErrorNarrator;
 let ErrorNarratorBrowser;
 let ErrorNarratorNode;
 
-// Check environment and load appropriate implementation
+// Check environment and load appropriate implementation.
+// Top-level await ensures that the module doesn't resolve until the correct
+// implementation has been loaded.
 if (typeof window !== "undefined" && typeof document !== "undefined") {
   // Browser environment
   try {
@@ -26,7 +28,7 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
 ) {
   // Node.js environment
   try {
-    const NodeImpl = require("./node.js");
+    const { default: NodeImpl } = await import("./node.js");
     ErrorNarratorNode = NodeImpl;
     ErrorNarrator = ErrorNarratorNode;
   } catch (error) {
