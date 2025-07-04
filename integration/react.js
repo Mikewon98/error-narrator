@@ -180,9 +180,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export {
-  ErrorBoundary,
-  withErrorNarration,
-  useErrorNarrator,
-  ErrorNarratorProvider,
-};
+export { ErrorBoundary };
