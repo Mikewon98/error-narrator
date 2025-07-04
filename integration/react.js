@@ -19,9 +19,9 @@ export function ErrorNarratorProvider({
       if (isInitializedRef.current) return;
 
       try {
-        // Dynamic import to avoid SSR issues
+        // Dynamic import with relative path instead of package name
         if (typeof window !== "undefined") {
-          const module = await import("error-narrator/src/browser.js");
+          const module = await import("../src/browser.js");
           ErrorNarratorBrowser = module.default;
 
           narratorRef.current = new ErrorNarratorBrowser({
