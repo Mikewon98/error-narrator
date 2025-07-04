@@ -7,31 +7,18 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.js",
+      "import": "./dist/index.js",
       "require": "./dist/node.js",
       "browser": "./dist/browser.js"
     },
     "./integration/react": {
-      "import": "./dist/integration/react.js",
+      "import": "./dist/integration-react.js",
       "require": "./dist/integration-react.js",
       "browser": "./dist/integration-react.js"
     },
     "./integration/webpack": {
-      "import": "./integration/webpack.js",
-      "require": "./dist/integration-webpack.js",
-      "browser": "./dist/integration-webpack.js"
-    },
-    "./src/browser.js": {
-      "import": "./src/browser.js",
-      "require": "./dist/browser.js"
-    },
-    "./src/config.js": {
-      "import": "./src/config.js",
-      "require": "./dist/config.js"
-    },
-    "./src/errorProcessor.js": {
-      "import": "./src/errorProcessor.js",
-      "require": "./dist/errorProcessor.js"
+      "import": "./dist/integration-webpack.js",
+      "require": "./dist/integration-webpack.js"
     }
   },
   "browser": {
