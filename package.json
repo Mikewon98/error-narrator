@@ -42,7 +42,7 @@
   "files": [
     "dist/",
     "src/",
-    "integrations/",
+    "integration",
     "README.md"
   ],
   "scripts": {
