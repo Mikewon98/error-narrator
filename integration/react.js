@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 // Create ErrorNarrator context
 const ErrorNarratorContext = createContext(null);
@@ -10,33 +16,37 @@ export function ErrorNarratorProvider({
   onError = null,
 }) {
   const narratorRef = useRef(null);
-  const isInitializedRef = useRef(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [initError, setInitError] = useState(null);
 
   useEffect(() => {
-    let ErrorNarratorBrowser;
+    // Only initialize on client-side
+    if (typeof window === "undefined") return;
+
+    let isMounted = true;
 
     const initializeNarrator = async () => {
-      if (isInitializedRef.current) return;
-
       try {
-        // Dynamic import with relative path instead of package name
-        if (typeof window !== "undefined") {
-          const module = await import("../src/browser.js");
-          ErrorNarratorBrowser = module.default;
+        // Use dynamic import with proper error handling
+        const { default: ErrorNarratorBrowser } = await import(
+          "../src/browser.js"
+        );
 
-          narratorRef.current = new ErrorNarratorBrowser({
-            autoSetup: true,
-            ...options,
-          });
+        if (!isMounted) return;
 
-          isInitializedRef.current = true;
+        narratorRef.current = new ErrorNarratorBrowser({
+          autoSetup: true,
+          ...options,
+        });
 
-          if (options.debug) {
-            console.log("[ErrorNarratorProvider] Initialized successfully");
-          }
+        setIsInitialized(true);
+
+        if (options.debug) {
+          console.log("[ErrorNarratorProvider] Initialized successfully");
         }
       } catch (error) {
         console.error("[ErrorNarratorProvider] Failed to initialize:", error);
+        setInitError(error);
         if (onError) {
           onError(error);
         }
@@ -45,8 +55,9 @@ export function ErrorNarratorProvider({
 
     initializeNarrator();
 
-    // Cleanup
+    // Cleanup function
     return () => {
+      isMounted = false;
       if (narratorRef.current) {
         narratorRef.current.disable();
         narratorRef.current.clearQueue();
@@ -56,21 +67,59 @@ export function ErrorNarratorProvider({
 
   // Update config when options change
   useEffect(() => {
-    if (narratorRef.current && isInitializedRef.current) {
+    if (narratorRef.current && isInitialized) {
       narratorRef.current.updateConfig(options);
     }
-  }, [options]);
+  }, [options, isInitialized]);
 
   const contextValue = {
     narrator: narratorRef.current,
-    speak: (message) => narratorRef.current?.speak(message),
-    handleError: (error) => narratorRef.current?.handleError(error),
-    enable: () => narratorRef.current?.enable(),
-    disable: () => narratorRef.current?.disable(),
-    test: (message) => narratorRef.current?.test(message),
-    clearQueue: () => narratorRef.current?.clearQueue(),
-    getStatus: () => narratorRef.current?.getStatus(),
-    updateConfig: (newConfig) => narratorRef.current?.updateConfig(newConfig),
+    isInitialized,
+    initError,
+    speak: (message) => {
+      if (narratorRef.current) {
+        return narratorRef.current.speak(message);
+      }
+      console.warn("[ErrorNarrator] Not initialized yet");
+    },
+    handleError: (error) => {
+      if (narratorRef.current) {
+        return narratorRef.current.handleError(error);
+      }
+      console.warn("[ErrorNarrator] Not initialized yet");
+    },
+    enable: () => {
+      if (narratorRef.current) {
+        return narratorRef.current.enable();
+      }
+    },
+    disable: () => {
+      if (narratorRef.current) {
+        return narratorRef.current.disable();
+      }
+    },
+    test: (message) => {
+      if (narratorRef.current) {
+        return narratorRef.current.test(message);
+      }
+      console.warn("[ErrorNarrator] Not initialized yet");
+    },
+    clearQueue: () => {
+      if (narratorRef.current) {
+        return narratorRef.current.clearQueue();
+      }
+    },
+    getStatus: () => {
+      if (narratorRef.current) {
+        return narratorRef.current.getStatus();
+      }
+      return { enabled: false, initialized: false };
+    },
+    updateConfig: (newConfig) => {
+      if (narratorRef.current) {
+        return narratorRef.current.updateConfig(newConfig);
+      }
+    },
   };
 
   return (

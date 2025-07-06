@@ -1,17 +1,22 @@
 const path = require("path");
 
 module.exports = [
-  // Main build (Universal)
+  // Main build (Universal) - Updated for better SSR compatibility
   {
     entry: "./src/index.js",
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "index.js",
-      library: "ErrorNarrator",
-      libraryTarget: "umd",
+      library: {
+        name: "ErrorNarrator",
+        type: "umd",
+        export: "default",
+      },
       globalObject: "typeof self !== 'undefined' ? self : this",
+      // Fix for SSR publicPath issues
+      publicPath: "",
     },
-    target: "web",
+    target: ["web", "es5"],
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     module: {
       rules: [
@@ -28,6 +33,7 @@ module.exports = [
                     targets: {
                       browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
                     },
+                    modules: false, // Let webpack handle modules
                   },
                 ],
                 "@babel/preset-react",
@@ -38,9 +44,9 @@ module.exports = [
       ],
     },
     externals: {
-      // Don't bundle these - let the consuming project handle them
       say: "say",
       react: "react",
+      "react-dom": "react-dom",
     },
     resolve: {
       extensions: [".js", ".jsx"],
@@ -50,23 +56,29 @@ module.exports = [
         child_process: false,
       },
       alias: {
-        // "error-narrator": path.resolve(__dirname, "src"),
         "error-narrator/src": path.resolve(__dirname, "src"),
       },
     },
+    optimization: {
+      usedExports: true,
+      sideEffects: false,
+    },
   },
 
-  // React integration build (for integration/react path)
+  // React integration build
   {
     entry: "./integration/react.js",
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "integration-react.js",
-      library: "ErrorNarratorReact",
-      libraryTarget: "umd",
+      library: {
+        name: "ErrorNarratorReact",
+        type: "umd",
+      },
       globalObject: "typeof self !== 'undefined' ? self : this",
+      publicPath: "",
     },
-    target: "web",
+    target: ["web", "es5"],
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     module: {
       rules: [
@@ -83,6 +95,7 @@ module.exports = [
                     targets: {
                       browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
                     },
+                    modules: false,
                   },
                 ],
                 "@babel/preset-react",
@@ -107,6 +120,10 @@ module.exports = [
         "error-narrator/src": path.resolve(__dirname, "src"),
       },
     },
+    optimization: {
+      usedExports: true,
+      sideEffects: false,
+    },
   },
 
   // Webpack integration build
@@ -116,9 +133,9 @@ module.exports = [
       path: path.resolve(__dirname, "dist"),
       filename: "integration-webpack.js",
       library: {
-        type: "umd",
+        type: "commonjs2",
       },
-      globalObject: "this",
+      publicPath: "",
     },
     target: "node",
     mode: process.env.NODE_ENV || "production",
@@ -130,7 +147,17 @@ module.exports = [
           use: {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env"],
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    targets: {
+                      node: "12",
+                    },
+                    modules: false,
+                  },
+                ],
+              ],
             },
           },
         },
@@ -144,10 +171,15 @@ module.exports = [
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "browser.js",
-      library: "ErrorNarratorBrowser",
-      libraryTarget: "umd",
+      library: {
+        name: "ErrorNarratorBrowser",
+        type: "umd",
+        export: "default",
+      },
+      globalObject: "typeof self !== 'undefined' ? self : this",
+      publicPath: "",
     },
-    target: "web",
+    target: ["web", "es5"],
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     module: {
       rules: [
@@ -157,7 +189,17 @@ module.exports = [
           use: {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env"],
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    targets: {
+                      browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
+                    },
+                    modules: false,
+                  },
+                ],
+              ],
             },
           },
         },
@@ -174,6 +216,10 @@ module.exports = [
         "error-narrator/src": path.resolve(__dirname, "src"),
       },
     },
+    optimization: {
+      usedExports: true,
+      sideEffects: false,
+    },
   },
 
   // Node-specific build
@@ -182,8 +228,12 @@ module.exports = [
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "node.js",
-      library: "ErrorNarratorNode",
-      libraryTarget: "commonjs2",
+      library: {
+        name: "ErrorNarratorNode",
+        type: "commonjs2",
+        export: "default",
+      },
+      publicPath: "",
     },
     target: "node",
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
@@ -202,6 +252,7 @@ module.exports = [
                     targets: {
                       node: "12",
                     },
+                    modules: false,
                   },
                 ],
               ],

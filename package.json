@@ -1,24 +1,38 @@
 {
   "name": "error-narrator",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Voice notifications for development errors",
-  "main": "./dist/node.js",
-  "module": "./src/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "browser": "./dist/browser.js",
+      "node": "./dist/node.js",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.js",
+      "default": "./dist/browser.js"
+    },
+    "./node": {
+      "import": "./dist/node.js",
       "require": "./dist/node.js",
-      "browser": "./dist/browser.js"
+      "default": "./dist/node.js"
     },
     "./integration/react": {
       "import": "./dist/integration-react.js",
       "require": "./dist/integration-react.js",
-      "browser": "./dist/integration-react.js"
+      "browser": "./dist/integration-react.js",
+      "default": "./dist/integration-react.js"
     },
     "./integration/webpack": {
       "import": "./dist/integration-webpack.js",
-      "require": "./dist/integration-webpack.js"
+      "require": "./dist/integration-webpack.js",
+      "default": "./dist/integration-webpack.js"
     }
   },
   "browser": {
@@ -29,7 +43,7 @@
   "files": [
     "dist/",
     "src/",
-    "integration",
+    "integration/",
     "README.md"
   ],
   "scripts": {
@@ -69,6 +83,11 @@
   "homepage": "https://github.com/mikewon98/error-narrator#readme",
   "peerDependencies": {
     "react": ">=16.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "dependencies": {
     "say": "^0.16.0"
