@@ -56,7 +56,8 @@ module.exports = [
         child_process: false,
       },
       alias: {
-        "error-narrator/src": path.resolve(__dirname, "src"),
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
       },
     },
     optimization: {
@@ -117,7 +118,8 @@ module.exports = [
         child_process: false,
       },
       alias: {
-        "error-narrator/src": path.resolve(__dirname, "src"),
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
       },
     },
     optimization: {
@@ -213,7 +215,8 @@ module.exports = [
         child_process: false,
       },
       alias: {
-        "error-narrator/src": path.resolve(__dirname, "src"),
+        // Help webpack resolve the correct modules
+        "error-narrator": path.resolve(__dirname, "src"),
       },
     },
     optimization: {

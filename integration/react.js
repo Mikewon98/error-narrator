@@ -27,12 +27,10 @@ export function ErrorNarratorProvider({
 
     const initializeNarrator = async () => {
       try {
-        // Use dynamic import with proper error handling
-        const { default: ErrorNarratorBrowser } = await import(
-          "../src/browser.js"
-        );
-
-        if (!isMounted) return;
+        // Dynamic import to avoid SSR issues
+        if (typeof window !== "undefined") {
+          const module = await import("error-narrator/src/browser.js");
+          ErrorNarratorBrowser = module.default;
 
         narratorRef.current = new ErrorNarratorBrowser({
           autoSetup: true,
