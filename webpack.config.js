@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = [
-  // Main build (Universal) - Updated for better SSR compatibility
+  // Main build (Universal)
   {
     entry: "./src/index.js",
     output: {
@@ -13,7 +13,6 @@ module.exports = [
         export: "default",
       },
       globalObject: "typeof self !== 'undefined' ? self : this",
-      // Fix for SSR publicPath issues
       publicPath: "",
     },
     target: ["web", "es5"],
@@ -33,7 +32,7 @@ module.exports = [
                     targets: {
                       browsers: ["> 1%", "last 2 versions", "not ie <= 8"],
                     },
-                    modules: false, // Let webpack handle modules
+                    modules: false,
                   },
                 ],
                 "@babel/preset-react",
@@ -55,10 +54,6 @@ module.exports = [
         fs: false,
         child_process: false,
       },
-      alias: {
-        // Help webpack resolve the correct modules
-        "error-narrator": path.resolve(__dirname, "src"),
-      },
     },
     optimization: {
       usedExports: true,
@@ -66,7 +61,7 @@ module.exports = [
     },
   },
 
-  // React integration build
+  // React integration build (for integration/react path)
   {
     entry: "./integration/react.js",
     output: {
@@ -79,7 +74,7 @@ module.exports = [
       globalObject: "typeof self !== 'undefined' ? self : this",
       publicPath: "",
     },
-    target: ["web", "es5"],
+    target: "web",
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     module: {
       rules: [
@@ -117,53 +112,10 @@ module.exports = [
         fs: false,
         child_process: false,
       },
-      alias: {
-        // Help webpack resolve the correct modules
-        "error-narrator": path.resolve(__dirname, "src"),
-      },
     },
     optimization: {
       usedExports: true,
       sideEffects: false,
-    },
-  },
-
-  // Webpack integration build
-  {
-    entry: "./integration/webpack.js",
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: "integration-webpack.js",
-      library: {
-        type: "commonjs2",
-      },
-      publicPath: "",
-    },
-    target: "node",
-    mode: process.env.NODE_ENV || "production",
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: {
-            loader: "babel-loader",
-            options: {
-              presets: [
-                [
-                  "@babel/preset-env",
-                  {
-                    targets: {
-                      node: "12",
-                    },
-                    modules: false,
-                  },
-                ],
-              ],
-            },
-          },
-        },
-      ],
     },
   },
 
@@ -181,7 +133,7 @@ module.exports = [
       globalObject: "typeof self !== 'undefined' ? self : this",
       publicPath: "",
     },
-    target: ["web", "es5"],
+    target: "web",
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
     module: {
       rules: [
@@ -207,16 +159,16 @@ module.exports = [
         },
       ],
     },
+    externals: {
+      react: "react",
+      "react-dom": "react-dom",
+    },
     resolve: {
       extensions: [".js", ".jsx"],
       fallback: {
         path: false,
         fs: false,
         child_process: false,
-      },
-      alias: {
-        // Help webpack resolve the correct modules
-        "error-narrator": path.resolve(__dirname, "src"),
       },
     },
     optimization: {
@@ -232,8 +184,8 @@ module.exports = [
       path: path.resolve(__dirname, "dist"),
       filename: "node.js",
       library: {
-        name: "ErrorNarratorNode",
-        type: "commonjs2",
+        name: "ErrorNarratorBrowser",
+        type: "umd",
         export: "default",
       },
       publicPath: "",

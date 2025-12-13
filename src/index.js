@@ -1,18 +1,23 @@
 // Universal entry point that works in both browser and Node.js environments
-import { Config } from "./config.js";
-import { ErrorProcessor } from "./errorProcessor.js";
 
-// Remove top-level await and use synchronous loading
 let ErrorNarrator;
 let ErrorNarratorBrowser;
 let ErrorNarratorNode;
 
 // Check environment and set up appropriate implementation
 if (typeof window !== "undefined" && typeof document !== "undefined") {
-  // Browser environment - use lazy loading
-  const BrowserImpl = lazy(() => import("./browser.js"));
-  ErrorNarratorBrowser = BrowserImpl;
-  ErrorNarrator = BrowserImpl;
+  // Browser environment - use dynamic import with immediate loading
+  import("./browser.js")
+    .then((module) => {
+      ErrorNarratorBrowser = module.default;
+      ErrorNarrator = module.default;
+    })
+    .catch((error) => {
+      console.error(
+        "[ErrorNarrator] Failed to load browser implementation:",
+        error
+      );
+    });
 } else if (
   typeof process !== "undefined" &&
   process.versions &&
@@ -20,7 +25,7 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
 ) {
   // Node.js environment - use synchronous require
   try {
-    const NodeImpl = require("./node.js").default;
+    const { default: NodeImpl } = require("./node.js");
     ErrorNarratorNode = NodeImpl;
     ErrorNarrator = NodeImpl;
   } catch (error) {
@@ -31,59 +36,47 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
   }
 }
 
-// Lazy loading helper for browser
-function lazy(importFn) {
-  let modulePromise = null;
-  let Module = null;
-
-  return function LazyErrorNarrator(options = {}) {
-    if (Module) {
-      return new Module(options);
-    }
-
-    if (!modulePromise) {
-      modulePromise = importFn().then((mod) => {
-        Module = mod.default;
-        return Module;
-      });
-    }
-
-    // Return a proxy that delays initialization
-    return new Proxy(
-      {},
-      {
-        get(target, prop) {
-          if (Module) {
-            const instance = new Module(options);
-            return instance[prop];
-          }
-
-          // Return a function that waits for the module to load
-          return function (...args) {
-            if (Module) {
-              const instance = new Module(options);
-              return instance[prop](...args);
-            }
-
-            return modulePromise.then((LoadedModule) => {
-              const instance = new LoadedModule(options);
-              return instance[prop](...args);
-            });
-          };
-        },
-      }
-    );
-  };
-}
-
 // Factory function to create ErrorNarrator instances
 function createErrorNarrator(options = {}) {
   if (!ErrorNarrator) {
     throw new Error(
-      "ErrorNarrator implementation not available for this environment"
+      "ErrorNarrator implementation not available for this environment. Make sure the appropriate implementation is loaded."
     );
   }
   return new ErrorNarrator(options);
+}
+
+// Async factory function for cases where you need to wait for module loading
+async function createErrorNarratorAsync(options = {}) {
+  // If already loaded, return immediately
+  if (ErrorNarrator) {
+    return new ErrorNarrator(options);
+  }
+
+  // If in browser environment, wait for dynamic import
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    try {
+      const module = await import("./browser.js");
+      ErrorNarrator = module.default;
+      ErrorNarratorBrowser = module.default;
+      return new ErrorNarrator(options);
+    } catch (error) {
+      console.error(
+        "[ErrorNarrator] Failed to load browser implementation:",
+        error
+      );
+      throw error;
+    }
+  }
+
+  // If in Node.js environment, should already be loaded synchronously
+  if (ErrorNarrator) {
+    return new ErrorNarrator(options);
+  }
+
+  throw new Error(
+    "ErrorNarrator implementation not available for this environment"
+  );
 }
 
 // Global instance for quick setup
@@ -93,6 +86,14 @@ let globalInstance = null;
 function setupErrorNarrator(options = {}) {
   if (!globalInstance) {
     globalInstance = createErrorNarrator(options);
+  }
+  return globalInstance;
+}
+
+// Async setup function
+async function setupErrorNarratorAsync(options = {}) {
+  if (!globalInstance) {
+    globalInstance = await createErrorNarratorAsync(options);
   }
   return globalInstance;
 }
@@ -140,10 +141,10 @@ export {
   ErrorNarrator,
   ErrorNarratorBrowser,
   ErrorNarratorNode,
-  Config,
-  ErrorProcessor,
   createErrorNarrator,
+  createErrorNarratorAsync,
   setupErrorNarrator,
+  setupErrorNarratorAsync,
   speak,
   handleError,
   enable,
