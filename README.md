@@ -26,12 +26,6 @@ yarn add error-narrator
 pnpm add error-narrator
 ```
 
-For Node.js environments, you'll also need the `say` package:
-
-```bash
-npm install say
-```
-
 ## Quick Start
 
 ### Browser (Vanilla JS)
@@ -53,30 +47,11 @@ try {
 }
 ```
 
-### Node.js
-
-```javascript
-const ErrorNarrator = require("error-narrator");
-
-// Auto-setup global error handlers
-const narrator = new ErrorNarrator({
-  enabled: true,
-  voice: "Alex", // macOS voice
-  rate: 1.2,
-});
-
-// Test it
-narrator.test("Node.js error narrator ready!");
-```
-
 ### React Integration
 
 ```jsx
 import React from "react";
-import {
-  ErrorNarratorProvider,
-  useErrorNarrator,
-} from "error-narrator/integration/react";
+import { ErrorNarratorProvider, useErrorNarrator } from "error-narrator";
 
 function App() {
   return (
@@ -147,6 +122,8 @@ const narrator = new ErrorNarrator({
 ### Core Methods
 
 ```javascript
+import ErrorNarrator from "error-narrator";
+
 // Create narrator instance
 const narrator = new ErrorNarrator(options);
 
@@ -172,6 +149,8 @@ narrator.getStatus();
 ### React Hook API
 
 ```javascript
+import { useErrorNarrator } from "error-narrator";
+
 const {
   narrator, // ErrorNarrator instance
   speak, // Speak custom message
@@ -202,10 +181,7 @@ Error Narrator automatically converts technical errors into human-readable messa
 ### React Error Boundary
 
 ```jsx
-import {
-  ErrorNarratorProvider,
-  ErrorBoundary,
-} from "error-narrator/integration/react";
+import { ErrorNarratorProvider } from "error-narrator";
 
 function App() {
   return (
@@ -221,29 +197,12 @@ function App() {
 ### Higher-Order Component
 
 ```jsx
-import { withErrorNarration } from "error-narrator/integration/react";
+import { withErrorNarration } from "error-narrator";
 
 const MyComponentWithNarration = withErrorNarration(MyComponent, {
   enabled: true,
   rate: 1.2,
 });
-```
-
-### Webpack Plugin
-
-```javascript
-// webpack.config.js
-const ErrorNarratorWebpackPlugin = require("error-narrator/integration/webpack");
-
-module.exports = {
-  plugins: [
-    new ErrorNarratorWebpackPlugin({
-      enabled: process.env.NODE_ENV === "development",
-      voice: "Samantha",
-      rate: 1.1,
-    }),
-  ],
-};
 ```
 
 ## Advanced Usage
@@ -265,32 +224,7 @@ const humanMessage = ErrorProcessor.humanizeError(error, config);
 const severity = ErrorProcessor.getErrorSeverity(error);
 ```
 
-### Environment-Specific Setup
-
-```javascript
-// Browser-specific
-import ErrorNarratorBrowser from "error-narrator/src/browser.js";
-const narrator = new ErrorNarratorBrowser(options);
-
-// Node.js-specific
-const ErrorNarratorNode = require("error-narrator/src/node.js");
-const narrator = new ErrorNarratorNode(options);
-```
-
-### Global Instance
-
-```javascript
-import { setupErrorNarrator, speak, handleError } from "error-narrator";
-
-// Setup global instance
-setupErrorNarrator({ enabled: true });
-
-// Use global methods
-speak("Global message");
-handleError(new Error("Global error"));
-```
-
-## Platform-Specific Features
+## Features
 
 ### Browser
 
@@ -298,13 +232,6 @@ handleError(new Error("Global error"));
 - Supports voice selection from available system voices
 - Handles page visibility and focus states
 - Automatic cleanup on page unload
-
-### Node.js
-
-- Uses `say` package for cross-platform TTS
-- Supports macOS, Windows, and Linux
-- Handles process events (uncaughtException, unhandledRejection)
-- Optional process exit on uncaught exceptions
 
 ### Voice Options
 
@@ -316,26 +243,10 @@ handleError(new Error("Global error"));
 
 ### Development Server Integration
 
-```javascript
-// server.js
-const ErrorNarrator = require("error-narrator");
-
-const narrator = new ErrorNarrator({
-  enabled: process.env.NODE_ENV === "development",
-  voice: "Alex",
-  filters: {
-    ignorePatterns: ["EADDRINUSE", "favicon.ico"],
-  },
-});
-
-// Your server code...
-```
-
-### React Development
+#### React Development
 
 ```jsx
-// _app.js (Next.js) or App.js (Create React App)
-import { ErrorNarratorProvider } from "error-narrator/integration/react";
+import { ErrorNarratorProvider } from "error-narrator";
 
 export default function App({ Component, pageProps }) {
   return (
@@ -352,20 +263,6 @@ export default function App({ Component, pageProps }) {
 }
 ```
 
-### Testing Integration
-
-```javascript
-// test-setup.js
-import { setupErrorNarrator } from "error-narrator";
-
-if (process.env.NODE_ENV === "test") {
-  setupErrorNarrator({
-    enabled: false, // Disable during tests
-    debug: true, // But enable debug logging
-  });
-}
-```
-
 ## Troubleshooting
 
 ### Common Issues
@@ -375,12 +272,6 @@ if (process.env.NODE_ENV === "test") {
 - Check if Web Speech API is supported
 - Ensure page has user interaction (required by most browsers)
 - Check browser permissions for speech synthesis
-
-**No voice output in Node.js:**
-
-- Install the `say` package: `npm install say`
-- On Linux, install espeak: `sudo apt-get install espeak`
-- On macOS, ensure system voices are available
 
 **Errors not being caught:**
 
@@ -406,12 +297,11 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v1.0.0
+### v1.0.5
 
 - Initial release
-- Browser and Node.js support
+- Browser support
 - React integration
-- Webpack plugin
 - Error humanization
 - Queue management
 - Cooldown system
