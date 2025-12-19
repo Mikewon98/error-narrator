@@ -1,6 +1,6 @@
 {
   "name": "error-narrator",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Voice notifications for development errors",
   "main": "./dist/index.js",
   "module": "./dist/esm/index.js",
