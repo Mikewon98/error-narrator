@@ -297,7 +297,7 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v1.0.5
+### v2.0.0
 
 - Initial release
 - Browser support
