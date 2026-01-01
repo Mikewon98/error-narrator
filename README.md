@@ -56,6 +56,7 @@ import { ErrorNarratorProvider, useErrorNarrator } from "error-narrator";
 function App() {
   return (
     <ErrorNarratorProvider options={{ enabled: true, rate: 1.1 }}>
+      // inside your page use the useErrorNarrator(); hook to trigger errors
       <MyComponent />
     </ErrorNarratorProvider>
   );
@@ -297,7 +298,7 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v2.0.0
+### v2.0.1
 
 - Initial release
 - Browser support

@@ -53,7 +53,7 @@
   "bugs": {
     "url": "https://github.com/mikewon98/error-narrator/issues"
   },
-  "homepage": "https://github.com/mikewon98/error-narrator#readme",
+  "homepage": "https://errornarrator.michaelyze.com",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
